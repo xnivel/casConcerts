@@ -1,4 +1,4 @@
-package kinoukasi;
+package kaskaclub;
 
 
 import java.text.SimpleDateFormat;
