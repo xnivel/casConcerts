@@ -33,13 +33,13 @@ public class Test extends Thread {
         long timestamp=0;
 
         for(int i=0;i<iteration;i++){
-            timestamp=boxOffice.buyTicket(concertName, type);
+            boxOffice.buyTicket(concertName, type);
             try {
                 Thread.sleep(sleeptime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            boxOffice.returnTicket(concertName, type,timestamp);
+            boxOffice.returnTicket(concertName, type);
 
 
         }

@@ -41,7 +41,6 @@ public class Main {
 
         while (!exit) {
             System.out.println("Put command[]:");
-            long timestamp = 0;
 
             comand = cin.nextLine();
 
@@ -57,11 +56,11 @@ public class Main {
                 t.run();
             }
             if (comand.contains("b"))
-                timestamp = boxOffice.buyTicket("Slayer", 1);
+                boxOffice.buyTicket("Slayer", 1);
             if (comand.contains("p"))
                 System.out.print(boxOffice.report());
             if (comand.contains("s"))
-                boxOffice.returnTicket("Slayer", 1, timestamp);
+                boxOffice.returnTicket("Slayer", 1);
             if (comand.contains("c"))
                 boxOffice.nuke();
             if (comand.contains("e"))

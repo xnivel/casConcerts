@@ -41,8 +41,8 @@ public class TicketsSession {
     private static PreparedStatement INIT;
     private static PreparedStatement SELECT;
     private static PreparedStatement SELECT_ALL;
-    private static PreparedStatement INCREMENTWITHTS;
-    private static PreparedStatement DECREMENTWITHTS;
+    private static PreparedStatement INCREMENT;
+    private static PreparedStatement DECREMENT;
     private static PreparedStatement DELETE_ALL;
 
     private static final String TICKET_FORMAT = "- %-15s %-2s %-10s %-10s\n";
@@ -53,10 +53,10 @@ public class TicketsSession {
         INIT = session.prepare("UPDATE tickets SET count = count + ? where concert = ? and type = ? and maxTickets = ?");
         SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM tickets WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ONE);
         SELECT_ALL = session.prepare("SELECT * FROM tickets;");
-        INCREMENTWITHTS = session.prepare(
-                "UPDATE tickets USING TIMESTAMP ? SET count = count + 1 WHERE concert = ? and type = ?;");
-        DECREMENTWITHTS = session.prepare(
-                "UPDATE tickets USING TIMESTAMP ? SET count = count - 1 WHERE concert = ? and type = ?;");
+        INCREMENT = session.prepare(
+                "UPDATE tickets SET count = count + 1 WHERE concert = ? and type = ? and maxTickets = ?;");
+        DECREMENT = session.prepare(
+                "UPDATE tickets SET count = count - 1 WHERE concert = ? and type = ? and maxTickets = ?;");
         DELETE_ALL = session.prepare("TRUNCATE tickets;");
         logger.info("Statements prepared");
     }
@@ -101,25 +101,25 @@ public class TicketsSession {
         return result;
     }
 
-    public void increment(String concert, int type,long timestamp,boolean accurate) {
+    public void increment(String concert, int type, int maxTickets, boolean accurate) {
         BoundStatement bs;
         if(accurate)
-             bs = new BoundStatement(INCREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.QUORUM));
+             bs = new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
         else
-            bs = new BoundStatement(INCREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.ANY));
-        bs.bind(timestamp,concert, type);
+            bs = new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.ONE));
+        bs.bind(concert, type, maxTickets);
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " incremented");
     }
 
-    public void decrement(String concert, int type,long timestamp,boolean accurate) {
+    public void decrement(String concert, int type, int maxTickets, boolean accurate) {
         BoundStatement bs;
         if (accurate)
-            bs= new BoundStatement(DECREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.QUORUM));
+            bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
         else
-            bs= new BoundStatement(DECREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.ANY));
-        bs.bind(timestamp,concert, type);
+            bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.ONE));
+        bs.bind(concert, type, maxTickets);
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " decremented");
