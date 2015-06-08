@@ -2,15 +2,9 @@ package kaskaclub;
 
 import java.text.SimpleDateFormat;
 
+import com.datastax.driver.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.Cluster;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
 
 public class TicketsSession {
     private static final Logger logger = LoggerFactory
@@ -46,8 +40,8 @@ public class TicketsSession {
 
     private static PreparedStatement SELECT;
     private static PreparedStatement SELECT_ALL;
-    private static PreparedStatement INCREMENT;
-    private static PreparedStatement DECREMENT;
+    private static PreparedStatement INCREMENTWITHTS;
+    private static PreparedStatement DECREMENTWITHTS;
     private static PreparedStatement DELETE_ALL;
 
     private static final String TICKET_FORMAT = "- %-15s %-2s %-10s\n";
@@ -55,12 +49,12 @@ public class TicketsSession {
             "yyyy-MM-dd HH:mm:ss");
 
     private void prepareStatements() {
-        SELECT = session.prepare("SELECT * FROM tickets WHERE concert = ? and type = ?;");
+        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))) FROM tickets WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ANY);
         SELECT_ALL = session.prepare("SELECT * FROM tickets;");
-        INCREMENT = session.prepare(
-                "UPDATE tickets SET count = count + 1 WHERE concert = ? and type = ?;");
-        DECREMENT = session.prepare(
-                "UPDATE tickets SET count = count - 1 WHERE concert = ? and type = ?;");
+        INCREMENTWITHTS = session.prepare(
+                "UPDATE tickets USING TIMESTAMP ? SET count = count + 1 WHERE concert = ? and type = ?;");
+        DECREMENTWITHTS = session.prepare(
+                "UPDATE tickets USING TIMESTAMP ? SET count = count - 1 WHERE concert = ? and type = ?;");
         DELETE_ALL = session.prepare("TRUNCATE tickets;");
         logger.info("Statements prepared");
     }
@@ -80,28 +74,39 @@ public class TicketsSession {
         return builder.toString();
     }
 
-    public long select(String concert, int type) {
+    public long[] select(String concert, int type) {
         StringBuilder builder = new StringBuilder();
         BoundStatement bs = new BoundStatement(SELECT);
         bs.bind(concert, type);
         ResultSet rs = session.execute(bs);
-        long count =rs.one().getLong("count");
+        Row row=rs.one();
+        long count =row.getLong("count");
+        long timestamp = row.getLong(1);
 
-        logger.info("Ticket count for " + concert + " type " + type + " count "+ count + " selected");
-        return count;
+        logger.info("Ticket count for " + concert + " type " + type + " count " + count + " selected");
+        long[] result = {count,timestamp};
+        return result;
     }
 
-    public void increment(String concert, int type) {
-        BoundStatement bs = new BoundStatement(INCREMENT);
-        bs.bind(concert, type);
+    public void increment(String concert, int type,long timestamp,boolean accurate) {
+        BoundStatement bs;
+        if(accurate)
+             bs = new BoundStatement(INCREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.QUORUM));
+        else
+            bs = new BoundStatement(INCREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.ANY));
+        bs.bind(timestamp,concert, type);
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " incremented");
     }
 
-    public void decrement(String concert, int type) {
-        BoundStatement bs = new BoundStatement(DECREMENT);
-        bs.bind(concert, type);
+    public void decrement(String concert, int type,long timestamp,boolean accurate) {
+        BoundStatement bs;
+        if (accurate)
+            bs= new BoundStatement(DECREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.QUORUM));
+        else
+            bs= new BoundStatement(DECREMENTWITHTS.setConsistencyLevel(ConsistencyLevel.ANY));
+        bs.bind(timestamp,concert, type);
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " decremented");
