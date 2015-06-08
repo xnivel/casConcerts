@@ -50,6 +50,7 @@ public class Main {
             if (comand.contains("t")) {
                 Test t = new Test();
                 t.setAll(100, "Slayer", 1, 1000);
+                t.run();
             }
             if (comand.contains("b"))
                 timestamp = boxOffice.buyTicket("Slayer", 1);
