@@ -26,7 +26,8 @@ public class Main {
         System.out.println("p-print");
         System.out.println("s-sell");
         System.out.println("e-exit");
-        System.out.println("e-help");
+        System.out.println("h-help");
+        System.out.println("t-test");
     }
 
     public static void main(String[] args) throws IOException {
