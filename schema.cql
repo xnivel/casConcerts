@@ -8,7 +8,7 @@ USE kaskaclub;
 CREATE TABLE tickets (
   concert varchar,
   type int,
-  count counter,
   maxTickets int,
-  PRIMARY KEY (concert, type)
+  count counter,
+  PRIMARY KEY (concert, type, maxTickets)
 );

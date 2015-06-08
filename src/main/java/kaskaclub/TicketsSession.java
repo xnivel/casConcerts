@@ -38,18 +38,20 @@ public class TicketsSession {
         prepareStatements();
     }
 
+    private static PreparedStatement INIT;
     private static PreparedStatement SELECT;
     private static PreparedStatement SELECT_ALL;
     private static PreparedStatement INCREMENTWITHTS;
     private static PreparedStatement DECREMENTWITHTS;
     private static PreparedStatement DELETE_ALL;
 
-    private static final String TICKET_FORMAT = "- %-15s %-2s %-10s\n";
+    private static final String TICKET_FORMAT = "- %-15s %-2s %-10s %-10s\n";
     private static final SimpleDateFormat df = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
 
     private void prepareStatements() {
-        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM tickets WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ANY);
+        INIT = session.prepare("UPDATE tickets SET count = count + ? where concert = ? and type = ? and maxTickets = ?");
+        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM tickets WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ONE);
         SELECT_ALL = session.prepare("SELECT * FROM tickets;");
         INCREMENTWITHTS = session.prepare(
                 "UPDATE tickets USING TIMESTAMP ? SET count = count + 1 WHERE concert = ? and type = ?;");
@@ -66,12 +68,21 @@ public class TicketsSession {
         for (Row row : rs) {
             String concert = row.getString("concert");
             int type = row.getInt("type");
+            int maxTickets = row.getInt("maxTickets");
             long count = row.getLong("count");
 
-            builder.append(String.format(TICKET_FORMAT, concert, type, count));
+            builder.append(String.format(TICKET_FORMAT, concert, type, maxTickets, count));
         }
 
         return builder.toString();
+    }
+
+    public void init(String concert, int type, int maxTickets) {
+        BoundStatement bs = new BoundStatement(INIT);
+        bs.bind((long)maxTickets, concert, type, maxTickets);
+        session.execute(bs);
+
+        logger.info("Max tickets for " + concert + " type " + type + " set to " + maxTickets);
     }
 
     public long[] select(String concert, int type) {
@@ -80,6 +91,7 @@ public class TicketsSession {
         bs.bind(concert, type);
         ResultSet rs = session.execute(bs);
         Row row=rs.one();
+        System.out.println(row.getColumnDefinitions().toString());
         long count =row.getLong("count");
         long timestamp = row.getLong(1);
         long maxtickets = (long)row.getInt("maxTickets");

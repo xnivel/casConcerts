@@ -22,6 +22,7 @@ import java.util.Scanner;
 
 public class Main {
     public static void showhelp() {
+        System.out.println("i-init");
         System.out.println("b-buy");
         System.out.println("p-print");
         System.out.println("s-sell");
@@ -44,6 +45,9 @@ public class Main {
 
             comand = cin.nextLine();
 
+            if (comand.contains("i")) {
+                boxOffice.init("Slayer", 1, 10);
+            }
             if (comand.contains("h")) {
                 showhelp();
             }
