@@ -49,7 +49,7 @@ public class TicketsSession {
     private static PreparedStatement DECREMENT;
     private static PreparedStatement DELETE_ALL;
 
-    private static final String USER_FORMAT = "- %-10s %-2s %-10s\n";
+    private static final String TICKET_FORMAT = "- %-15s %-2s %-10s\n";
     private static final SimpleDateFormat df = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
 
@@ -72,7 +72,7 @@ public class TicketsSession {
             int type = row.getInt("type");
             long count = row.getLong("count");
 
-            builder.append(String.format("%s %s %s", concert, type, count));
+            builder.append(String.format(TICKET_FORMAT, concert, type, count));
         }
 
         return builder.toString();
