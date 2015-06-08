@@ -1,4 +1,4 @@
-description = 'CassandraTest'
+description = 'kaskaclub'
 apply plugin: 'base'
 apply plugin: 'java'
 apply plugin: 'eclipse'
@@ -46,7 +46,7 @@ configurations.all {
 }
 
 
-mainClassName = "cassdemo.Main"
+mainClassName = "kaskaclub.Main"
 
 run {
     standardInput = System.in
