@@ -49,7 +49,7 @@ public class TicketsSession {
             "yyyy-MM-dd HH:mm:ss");
 
     private void prepareStatements() {
-        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))) FROM tickets WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ANY);
+        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM tickets WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ANY);
         SELECT_ALL = session.prepare("SELECT * FROM tickets;");
         INCREMENTWITHTS = session.prepare(
                 "UPDATE tickets USING TIMESTAMP ? SET count = count + 1 WHERE concert = ? and type = ?;");
@@ -82,9 +82,10 @@ public class TicketsSession {
         Row row=rs.one();
         long count =row.getLong("count");
         long timestamp = row.getLong(1);
+        long maxtickets = (long)row.getInt("maxTickets");
 
         logger.info("Ticket count for " + concert + " type " + type + " count " + count + " selected");
-        long[] result = {count,timestamp};
+        long[] result = {count,timestamp,maxtickets};
         return result;
     }
 

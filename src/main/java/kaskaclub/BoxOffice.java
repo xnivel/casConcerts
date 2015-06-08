@@ -5,7 +5,7 @@ public class BoxOffice {
 
     public long buyTicket(String concert, int type) {
             long[] selectResults=session.select(concert, type);
-            session.increment(concert, type,selectResults[1],selectResults[0]>15);
+            session.increment(concert, type,selectResults[1],selectResults[0]>selectResults[2]*0.75);
             return selectResults[1];
     }
 
