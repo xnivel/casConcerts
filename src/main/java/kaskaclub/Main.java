@@ -16,13 +16,41 @@
 package kaskaclub;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) throws IOException {
         BoxOffice boxOffice = new BoxOffice();
+        boolean exit=false;
 
-        boxOffice.buyTicket("Slayer", 1);
-        System.out.print(boxOffice.report());
+        String comand;
+        Scanner cin = new Scanner(System.in);
+
+        while(!exit) {
+            System.out.println("Put command[]:");
+
+            comand = cin.nextLine();
+
+            if (comand.contains("h")){
+                System.out.println("b-buy");
+                System.out.println("p-print");
+                System.out.println("s-sell");
+                System.out.println("e-exit");
+            }
+            if (comand.contains("b"))
+                boxOffice.buyTicket("Slayer", 1);
+            if (comand.contains("p"))
+                System.out.print(boxOffice.report());
+            if (comand.contains("s"))
+                boxOffice.returnTicket("Slayer", 1);
+            if (comand.contains("c"))
+                boxOffice.nuke();
+            if (comand.contains("e"))
+                exit=true;
+
+        }
 
         System.exit(0);
     }
