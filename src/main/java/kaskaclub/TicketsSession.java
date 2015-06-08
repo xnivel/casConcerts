@@ -44,6 +44,7 @@ public class TicketsSession {
         prepareStatements();
     }
 
+    private static PreparedStatement SELECT;
     private static PreparedStatement SELECT_ALL;
     private static PreparedStatement INCREMENT;
     private static PreparedStatement DECREMENT;
@@ -54,6 +55,7 @@ public class TicketsSession {
             "yyyy-MM-dd HH:mm:ss");
 
     private void prepareStatements() {
+        SELECT = session.prepare("SELECT * FROM tickets WHERE concert = ? and type = ?;");
         SELECT_ALL = session.prepare("SELECT * FROM tickets;");
         INCREMENT = session.prepare(
                 "UPDATE tickets SET count = count + 1 WHERE concert = ? and type = ?;");
@@ -76,6 +78,17 @@ public class TicketsSession {
         }
 
         return builder.toString();
+    }
+
+    public long select(String concert, int type) {
+        StringBuilder builder = new StringBuilder();
+        BoundStatement bs = new BoundStatement(SELECT);
+        bs.bind(concert, type);
+        ResultSet rs = session.execute(bs);
+        long count =rs.one().getLong("count");
+
+        logger.info("Ticket count for " + concert + " type " + type + " count "+ count + " selected");
+        return count;
     }
 
     public void increment(String concert, int type) {

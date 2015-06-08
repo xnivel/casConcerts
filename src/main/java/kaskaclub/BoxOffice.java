@@ -4,8 +4,7 @@ public class BoxOffice {
     private TicketsSession session = new TicketsSession("127.0.0.1");
 
     public boolean buyTicket(String concert, int type) {
-        // TODO: a better condition
-        if (true) {
+        if ((session.select(concert,type))>15) {
             session.increment(concert, type);
             return true;
         } else {
