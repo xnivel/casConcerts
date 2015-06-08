@@ -18,22 +18,12 @@ package kaskaclub;
 import java.io.IOException;
 
 public class Main {
-
     public static void main(String[] args) throws IOException {
+        BoxOffice boxOffice = new BoxOffice();
 
-        UsersSession session = new UsersSession("127.0.0.1");
-
-        session.upsertUser("PP", "Adam", 609, "A St");
-        session.upsertUser("PP", "Ola", 509, null);
-        session.upsertUser("UAM", "Ewa", 720, "B St");
-        session.upsertUser("PP", "Kasia", 713, "C St");
-
-        String output = session.selectAll();
-        System.out.println("Users: \n" + output);
-
-        session.deleteAll();
+        boxOffice.buyTicket("Slayer", 1);
+        System.out.print(boxOffice.report());
 
         System.exit(0);
-
     }
 }
