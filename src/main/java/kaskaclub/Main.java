@@ -21,35 +21,45 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Main {
+    public static void showhelp() {
+        System.out.println("b-buy");
+        System.out.println("p-print");
+        System.out.println("s-sell");
+        System.out.println("e-exit");
+        System.out.println("e-help");
+    }
+
     public static void main(String[] args) throws IOException {
         BoxOffice boxOffice = new BoxOffice();
-        boolean exit=false;
+        boolean exit = false;
 
         String comand;
         Scanner cin = new Scanner(System.in);
+        showhelp();
 
-        while(!exit) {
+        while (!exit) {
             System.out.println("Put command[]:");
-            long timestamp=0;
+            long timestamp = 0;
 
             comand = cin.nextLine();
 
-            if (comand.contains("h")){
-                System.out.println("b-buy");
-                System.out.println("p-print");
-                System.out.println("s-sell");
-                System.out.println("e-exit");
+            if (comand.contains("h")) {
+                showhelp();
+            }
+            if (comand.contains("t")) {
+                Test t = new Test();
+                t.setAll(100, "Slayer", 1, 1000);
             }
             if (comand.contains("b"))
-                timestamp=boxOffice.buyTicket("Slayer", 1);
+                timestamp = boxOffice.buyTicket("Slayer", 1);
             if (comand.contains("p"))
                 System.out.print(boxOffice.report());
             if (comand.contains("s"))
-                boxOffice.returnTicket("Slayer", 1,timestamp);
+                boxOffice.returnTicket("Slayer", 1, timestamp);
             if (comand.contains("c"))
                 boxOffice.nuke();
             if (comand.contains("e"))
-                exit=true;
+                exit = true;
 
         }
 
