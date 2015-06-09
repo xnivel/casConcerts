@@ -34,6 +34,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         BoxOffice boxOffice = new BoxOffice();
         boolean exit = false;
+        long timestamp= 0;
 
         String comand;
         Scanner cin = new Scanner(System.in);
@@ -52,15 +53,15 @@ public class Main {
             }
             if (comand.contains("t")) {
                 Test t = new Test();
-                t.setAll(100, "Slayer", 1, 1000);
+                t.setAll(100, "Slayer", 1, 1000,"Bob",1);
                 t.run();
             }
             if (comand.contains("b"))
-                boxOffice.buyTicket("Slayer", 1);
+                timestamp=boxOffice.buyTicket("Bob","Slayer", 1,1);
             if (comand.contains("p"))
                 System.out.print(boxOffice.report());
             if (comand.contains("s"))
-                boxOffice.returnTicket("Slayer", 1);
+                boxOffice.returnTicket("Bob","Slayer", 1,1,timestamp);
             if (comand.contains("c"))
                 boxOffice.nuke();
             if (comand.contains("e"))

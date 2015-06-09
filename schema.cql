@@ -12,3 +12,11 @@ CREATE TABLE tickets (
   count counter,
   PRIMARY KEY (concert, type, maxTickets)
 );
+CREATE TABLE ticketsboughtby (
+  concert varchar,
+  type int,
+  name varchar,
+  count int,
+  timestamp bigint,
+  PRIMARY KEY (concert, type,name)
+);
