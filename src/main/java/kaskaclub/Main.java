@@ -16,6 +16,7 @@
 package kaskaclub;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
@@ -29,9 +30,10 @@ public class Main {
         System.out.println("e-exit");
         System.out.println("h-help");
         System.out.println("t-test");
+        System.out.println("m-multi-test");
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, InterruptedException {
         BoxOffice boxOffice = new BoxOffice();
         boolean exit = false;
         long timestamp= 0;
@@ -55,6 +57,27 @@ public class Main {
                 Test t = new Test();
                 t.setAll(100, "Slayer", 1, 1000,"Bob",1);
                 t.run();
+            }
+            if (comand.contains("m")) {
+                String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
+                String[] concerts = {"Slayer", "La Roux", "Moby", "New Order", "Kraftwerk"};
+                ArrayList<Test> tests = new ArrayList<>();
+                for (String concert: concerts) {
+                    boxOffice.init(concert, 1, 50);
+                    boxOffice.init(concert, 2, 100);
+                    boxOffice.init(concert, 3, 500);
+                    for (String name : names) {
+                        Test t = new Test();
+                        t.setAll(100, concert, 1, 1000, name, 1);
+                        tests.add(t);
+                    }
+                }
+                for (Test t: tests) {
+                    t.start();
+                }
+                for (Test t: tests) {
+                    t.join();
+                }
             }
             if (comand.contains("b"))
                 timestamp=boxOffice.buyTicket("Bob","Slayer", 1,1);
