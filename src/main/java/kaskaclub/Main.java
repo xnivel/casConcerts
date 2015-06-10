@@ -50,6 +50,22 @@ public class Main {
             if (comand.contains("i")) {
                 boxOffice.init("Slayer", 1, 10);
             }
+            if (comand.contains("M")) {
+                String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
+                boxOffice.init("Slayer", 1, 1000000);
+                ArrayList<Test> tests = new ArrayList<>();
+                for (String name : names) {
+                    Test t = new Test();
+                    t.setAll(1000, "Slayer", 1, 1000, name, 1);
+                    tests.add(t);
+                }
+                for (Test t: tests) {
+                    t.start();
+                }
+                for (Test t: tests) {
+                    t.join();
+                }
+            }
             if (comand.contains("h")) {
                 showhelp();
             }
