@@ -88,7 +88,7 @@ public class NewTicketsSession implements ITicketsSession {
 
     @Override
     public void init(String concert, int type, int maxTickets) {
-        BoundStatement bs = new BoundStatement(INIT);
+        BoundStatement bs = new BoundStatement(INIT.setConsistencyLevel(ConsistencyLevel.ALL));
         bs.bind(maxTickets, concert, type, maxTickets);
         session.execute(bs);
 
@@ -102,7 +102,6 @@ public class NewTicketsSession implements ITicketsSession {
         bs.bind(concert, type);
         ResultSet rs = session.execute(bs);
         Row row=rs.one();
-        System.out.println(row.getColumnDefinitions().toString());
         long count =row.getInt("count");
         long timestamp = row.getLong(1);
         long maxtickets = (long)row.getInt("maxTickets");
