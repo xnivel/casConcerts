@@ -78,7 +78,7 @@ public class NewTicketsSession implements ITicketsSession {
             String concert = row.getString("concert");
             int type = row.getInt("type");
             int maxTickets = row.getInt("maxTickets");
-            long count = row.getLong("count");
+            int count = row.getInt("count");
 
             builder.append(String.format(TICKET_FORMAT, concert, type, maxTickets, count));
         }
