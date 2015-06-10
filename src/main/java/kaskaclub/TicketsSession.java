@@ -113,7 +113,7 @@ public class TicketsSession implements ITicketsSession {
     }
 
     @Override
-    public void increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
+    public Boolean increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         if(accurate)
              bs = new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
@@ -128,10 +128,11 @@ public class TicketsSession implements ITicketsSession {
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " incremented");
+        return true;
     }
 
     @Override
-    public void decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
+    public Boolean decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         if (accurate)
             bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
@@ -145,6 +146,7 @@ public class TicketsSession implements ITicketsSession {
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " decremented");
+        return true;
     }
 
     @Override

@@ -113,13 +113,19 @@ public class NewTicketsSession implements ITicketsSession {
     }
 
     @Override
-    public void increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
+    public Boolean increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         boolean correct_execute = false;
         while(!correct_execute) {
             try {
                 long[] selectResult = select(concert, type);
                 int oldCount = (int)selectResult[0];
+
+                if (oldCount >= maxTickets) {
+                    logger.info("Ticket count for " + concert + " type " + type + " is at max");
+                    return false;
+                }
+
                 int newCount = oldCount + count;
 
                 bs= new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
@@ -129,6 +135,11 @@ public class NewTicketsSession implements ITicketsSession {
                 correct_execute = true;
             } catch (Exception e) {
                 e.printStackTrace();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
 
@@ -137,16 +148,24 @@ public class NewTicketsSession implements ITicketsSession {
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " incremented");
+
+        return true;
     }
 
     @Override
-    public void decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
+    public Boolean decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         boolean correct_execute=false;
         while(!correct_execute) {
             try {
                 long[] selectResult = select(concert, type);
                 int oldCount = (int)selectResult[0];
+
+                if (oldCount == 0) {
+                    logger.info("Ticket count for " + concert + " type " + type + " is 0");
+                    return false;
+                }
+
                 int newCount = oldCount - count;
 
                 bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
@@ -156,6 +175,11 @@ public class NewTicketsSession implements ITicketsSession {
                 correct_execute = true;
             } catch (Exception e) {
                 e.printStackTrace();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
             }
         }
         bs = new BoundStatement(INSERTBUYER.setConsistencyLevel(ConsistencyLevel.QUORUM));
@@ -163,6 +187,7 @@ public class NewTicketsSession implements ITicketsSession {
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " decremented");
+        return true;
     }
 
     @Override

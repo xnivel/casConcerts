@@ -51,9 +51,9 @@ public class Test extends Thread {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            boxOffice.returnTicket(userName,concertName, type,count,timestamp);
-
-
+            if (timestamp > 0) {
+                boxOffice.returnTicket(userName, concertName, type, count, timestamp);
+            }
         }
     }
 }
