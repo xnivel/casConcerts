@@ -53,16 +53,16 @@ public class Main {
             if (comand.contains("M")) {
                 String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
                 boxOffice.init("Slayer", 1, 1000000);
-                ArrayList<Test> tests = new ArrayList<>();
+                ArrayList<TestOnlyBuy> tests = new ArrayList<>();
                 for (String name : names) {
-                    Test t = new Test();
+                    TestOnlyBuy t = new TestOnlyBuy();
                     t.setAll(1000, "Slayer", 1, 1000, name, 1);
                     tests.add(t);
                 }
-                for (Test t: tests) {
+                for (TestOnlyBuy t: tests) {
                     t.start();
                 }
-                for (Test t: tests) {
+                for (TestOnlyBuy t: tests) {
                     t.join();
                 }
             }
