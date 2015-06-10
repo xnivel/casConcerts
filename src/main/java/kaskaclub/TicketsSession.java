@@ -55,11 +55,11 @@ public class TicketsSession implements ITicketsSession {
     private void prepareStatements() {
         INIT = session.prepare("UPDATE ticketsOld SET count = count + ? where concert = ? and type = ? and maxTickets = ?");
         SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM ticketsOld WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ONE);
-        SELECT_ALL = session.prepare("SELECT * FROM tickets;");
+        SELECT_ALL = session.prepare("SELECT * FROM ticketsOld;");
         INCREMENT = session.prepare(
-                "UPDATE tickets SET count = count + ? WHERE concert = ? and type = ? and maxTickets = ?;");
+                "UPDATE ticketsOld SET count = count + ? WHERE concert = ? and type = ? and maxTickets = ?;");
         DECREMENT = session.prepare(
-                "UPDATE tickets SET count = count - ? WHERE concert = ? and type = ? and maxTickets = ?;");
+                "UPDATE ticketsOld SET count = count - ? WHERE concert = ? and type = ? and maxTickets = ?;");
         DELETE_ALL = session.prepare("TRUNCATE ticketsOld;");
 
 
@@ -113,7 +113,7 @@ public class TicketsSession implements ITicketsSession {
     }
 
     @Override
-    public void increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate, int oldval) {
+    public void increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         if(accurate)
              bs = new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
@@ -131,7 +131,7 @@ public class TicketsSession implements ITicketsSession {
     }
 
     @Override
-    public void decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate, int oldval) {
+    public void decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         if (accurate)
             bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));

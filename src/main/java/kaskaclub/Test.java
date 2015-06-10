@@ -41,7 +41,7 @@ public class Test extends Thread {
     }
 
     public void run(){
-        BoxOffice boxOffice = new BoxOffice();
+        BoxOffice boxOffice = new BoxOffice(true);
         long timestamp=0;
 
         for(int i=0;i<iteration;i++){

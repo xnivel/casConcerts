@@ -34,7 +34,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        BoxOffice boxOffice = new BoxOffice();
+        BoxOffice boxOffice = new BoxOffice(true);
         boolean exit = false;
         long timestamp= 0;
 

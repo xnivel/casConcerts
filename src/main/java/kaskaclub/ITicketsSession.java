@@ -10,9 +10,9 @@ public interface ITicketsSession {
 
     long[] select(String concert, int type);
 
-    void increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate, int oldval);
+    void increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate);
 
-    void decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate, int oldval);
+    void decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate);
 
     void deleteAll();
 }
