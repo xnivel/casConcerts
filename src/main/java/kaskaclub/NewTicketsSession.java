@@ -117,8 +117,15 @@ public class NewTicketsSession implements ITicketsSession {
         BoundStatement bs;
         bs = new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
         bs.bind((long)count,concert, type, maxTickets,oldval);
-        session.execute(bs);
-
+        boolean correct_execute=false;
+        while(!correct_execute) {
+            try {
+                session.execute(bs);
+                correct_execute=true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
 
         bs= new BoundStatement(DELETEBUYER.setConsistencyLevel(ConsistencyLevel.ONE));
         bs.bind(timestamp+1,concert, type, name);
@@ -132,8 +139,15 @@ public class NewTicketsSession implements ITicketsSession {
         BoundStatement bs;
         bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.ONE));
         bs.bind((long)count,concert, type, maxTickets,oldval);
-        session.execute(bs);
-
+        boolean correct_execute=false;
+        while(!correct_execute) {
+            try {
+                session.execute(bs);
+                correct_execute=true;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
         bs = new BoundStatement(INSERTBUYER.setConsistencyLevel(ConsistencyLevel.ONE));
         bs.bind(timestamp,count,timestamp,name,concert, type);
         session.execute(bs);
