@@ -9,6 +9,13 @@ CREATE TABLE tickets (
   concert varchar,
   type int,
   maxTickets int,
+  count int,
+  PRIMARY KEY (concert, type, maxTickets)
+);
+CREATE TABLE ticketsOld (
+  concert varchar,
+  type int,
+  maxTickets int,
   count counter,
   PRIMARY KEY (concert, type, maxTickets)
 );

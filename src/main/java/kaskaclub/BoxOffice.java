@@ -9,7 +9,7 @@ public class BoxOffice {
 
     public long buyTicket(String name,String concert, int type,int count) {
         long[] selectResults = session.select(concert, type);
-        session.decrement(name,concert, type,count, (int)selectResults[2],selectResults[1], selectResults[0] < selectResults[2] * 0.25);
+        session.decrement(name,concert, type,count, (int)selectResults[2],selectResults[1], selectResults[0] < selectResults[2] * 0.25,(int) selectResults[0]);
         return selectResults[1];
     }
 
@@ -17,7 +17,7 @@ public class BoxOffice {
         long[] selectResults = session.select(concert, type);
         if(timestamp==0)
             timestamp=selectResults[1]+100000;
-        session.increment(name,concert, type,count, (int)selectResults[2],timestamp, selectResults[0] < selectResults[2] * 0.25);
+        session.increment(name,concert, type,count, (int)selectResults[2],timestamp, selectResults[0] < selectResults[2] * 0.25,(int) selectResults[0]);
     }
 
     public void nuke() {
