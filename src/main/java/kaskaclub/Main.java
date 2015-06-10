@@ -56,7 +56,7 @@ public class Main {
                 ArrayList<TestOnlyBuy> tests = new ArrayList<>();
                 for (String name : names) {
                     TestOnlyBuy t = new TestOnlyBuy();
-                    t.setAll(1000, "Slayer", 1, 1000, name, 1);
+                    t.setAll(1000, "Slayer", 1, 1000, name, 1,boxOffice);
                     tests.add(t);
                 }
                 for (TestOnlyBuy t: tests) {
@@ -71,7 +71,7 @@ public class Main {
             }
             if (comand.contains("t")) {
                 Test t = new Test();
-                t.setAll(100, "Slayer", 1, 1000,"Bob",1);
+                t.setAll(100, "Slayer", 1, 1000,"Bob",1,boxOffice);
                 t.run();
             }
             if (comand.contains("m")) {
@@ -84,7 +84,7 @@ public class Main {
                     boxOffice.init(concert, 3, 500);
                     for (String name : names) {
                         Test t = new Test();
-                        t.setAll(100, concert, 1, 1000, name, 1);
+                        t.setAll(100, concert, 1, 1000, name, 1,boxOffice);
                         tests.add(t);
                     }
                 }
