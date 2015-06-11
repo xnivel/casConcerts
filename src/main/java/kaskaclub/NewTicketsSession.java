@@ -130,8 +130,11 @@ public class NewTicketsSession implements ITicketsSession {
                 bs= new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
                 bs.bind(newCount,concert, type, maxTickets, oldCount);
 
-                session.execute(bs);
-                correct_execute = true;
+                ResultSet rs = session.execute(bs);
+                Row row = rs.one();
+                if (row.getBool("[applied]")) {
+                    correct_execute = true;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 try {
@@ -170,8 +173,11 @@ public class NewTicketsSession implements ITicketsSession {
                 bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
                 bs.bind(newCount,concert, type, maxTickets, oldCount);
 
-                session.execute(bs);
-                correct_execute = true;
+                ResultSet rs = session.execute(bs);
+                Row row = rs.one();
+                if (row.getBool("[applied]")) {
+                    correct_execute = true;
+                }
             } catch (Exception e) {
                 e.printStackTrace();
                 try {
