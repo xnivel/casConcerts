@@ -7,6 +7,7 @@ public class Test extends Thread {
     int count;
     int type;
     int sleeptime;
+    BoxOffice boxOffice;
 
     public void setUserName(String userName) {
         this.userName = userName;
@@ -31,17 +32,17 @@ public class Test extends Thread {
     public void setSleeptime(int sleeptime) {
         this.sleeptime = sleeptime;
     }
-    public void setAll(int iteration,String concertName,int type,int sleeptime,String userName,int count){
+    public void setAll(int iteration,String concertName,int type,int sleeptime,String userName,int count,BoxOffice boxOffice){
         this.iteration = iteration;
         this.concertName = concertName;
         this.type = type;
         this.sleeptime = sleeptime;
         this.userName = userName;
         this.count = count;
+        this.boxOffice = boxOffice;
     }
 
     public void run(){
-        BoxOffice boxOffice = new BoxOffice(true);
         long timestamp=0;
 
         for(int i=0;i<iteration;i++){
