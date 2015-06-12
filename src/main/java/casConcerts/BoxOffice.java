@@ -29,11 +29,13 @@ public class BoxOffice {
         Set<String> candidates = session.getCandidates(concert, type, id);
         if (candidates.size() == 1 && candidates.contains(name)) {
             session.setOwner(name, concert, type, id);
+            session.deleteFreeTicket(concert, type, id);
             return id;
         }
 
         boolean ok = session.setOwnerTransaction(name, concert, type, id);
         if (ok) {
+            session.deleteFreeTicket(concert, type, id);
             return id;
         } else {
             return -1;
