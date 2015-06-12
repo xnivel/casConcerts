@@ -2,6 +2,7 @@ package casConcerts;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import com.datastax.driver.core.*;
@@ -66,12 +67,12 @@ public class TicketsSession {
         DELETE_ALL_TICKETS = session.prepare("TRUNCATE tickets;");
         DELETE_ALL_TICKETSINFO = session.prepare("TRUNCATE ticketsinfo;");
 
-        ADD_TO_CANDIDATES = session.prepare("UPDATE tickets SET candidates = candidates + {?} WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        ADD_TO_CANDIDATES = session.prepare("UPDATE tickets SET candidates = candidates + ? WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         GET_CANDIDATES = session.prepare("SELECT candidates FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         GET_MAX_TICKETS = session.prepare("SELECT maxTickets FROM ticketsInfo WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
         GET_OWNER = session.prepare("SELECT owner FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         SET_OWNER = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
-        SET_OWNER_TRANSACTION = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ? IF owner IS NULL").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        SET_OWNER_TRANSACTION = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ? IF owner = NULL").setConsistencyLevel(ConsistencyLevel.QUORUM);
         GET_FREE_TICKETS = session.prepare("SELECT id FROM freetickets WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
 
         logger.info("Statements prepared");
@@ -104,7 +105,9 @@ public class TicketsSession {
 
     public void addToCandidates(String name, String concert, int type, int id) {
         BoundStatement bs = new BoundStatement(ADD_TO_CANDIDATES);
-        bs.bind(name, concert, type, id);
+        Set<String> set = new HashSet<>();
+        set.add(name);
+        bs.bind(set, concert, type, id);
         session.execute(bs);
     }
 
