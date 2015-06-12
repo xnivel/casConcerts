@@ -48,6 +48,10 @@ public class TicketsSession implements ITicketsSession {
     private static PreparedStatement INSERTBUYER;
     private static PreparedStatement DELETEBUYER;
 
+    private static PreparedStatement INSERTFREETICKET;
+    private static PreparedStatement DELETEFREETICKET;
+    private static PreparedStatement SELECTFREETICKET;
+
     private static final String TICKET_FORMAT = "- %-15s %-2s %-10s %-10s\n";
     private static final SimpleDateFormat df = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
@@ -62,9 +66,11 @@ public class TicketsSession implements ITicketsSession {
                 "UPDATE ticketsOld SET count = count - ? WHERE concert = ? and type = ? and maxTickets = ?;");
         DELETE_ALL = session.prepare("TRUNCATE ticketsOld;");
 
+        INSERTBUYER = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
+        DELETEBUYER = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");
 
-        INSERTBUYER = session.prepare("UPDATE ticketsboughtby USING TIMESTAMP ? SET  count = ?,timestamp=? WHERE name = ? and concert = ? and type = ?;");
-        DELETEBUYER = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and name = ? ;");
+        INSERTFREETICKET = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
+        DELETEFREETICKET = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");
 
         logger.info("Statements prepared");
     }

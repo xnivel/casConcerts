@@ -10,6 +10,13 @@ CREATE TABLE tickets (
   type int,
   id int,
   owner varchar,
-  candidates set<int>,
+  candidates set<varchar>,
   PRIMARY KEY (concert, type, id)
+);
+
+CREATE TABLE freetickets (
+  concert varchar,
+  type int,
+  id int,
+  PRIMARY KEY ((concert, type), id)
 );

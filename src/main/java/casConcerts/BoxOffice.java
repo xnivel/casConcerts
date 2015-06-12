@@ -3,12 +3,8 @@ package casConcerts;
 public class BoxOffice {
     private ITicketsSession session;
 
-    public BoxOffice(Boolean useNew) {
-        if (useNew) {
-            session = new NewTicketsSession("127.0.0.1");
-        } else {
+    public BoxOffice() {
             session = new TicketsSession("127.0.0.1");
-        }
     }
 
     public void init(String concert, int type, int maxTickets) {
