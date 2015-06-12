@@ -105,10 +105,10 @@ public class TicketsSession {
         bs.bind(name,type,id);
         session.execute(bs);
     }
-    public void deleteFreeTicket(String name,int type,int id){
+    public void deleteFreeTicket(String concert, int type, int id){
         BoundStatement bs;
         bs = new BoundStatement(DELETEFREETICKET.setConsistencyLevel(ConsistencyLevel.QUORUM));
-        bs.bind(name,type,id);
+        bs.bind(concert, type, id);
         session.execute(bs);
     }
 
