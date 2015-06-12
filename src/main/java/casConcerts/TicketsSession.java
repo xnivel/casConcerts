@@ -52,6 +52,10 @@ public class TicketsSession {
     private static PreparedStatement DELETEFREETICKET;
     private static PreparedStatement SELECTFREETICKET;
 
+    private static PreparedStatement DELETE_ALL_FREETICKETS;
+    private static PreparedStatement DELETE_ALL_TICKETS;
+    private static PreparedStatement DELETE_ALL_TICKETSINFO;
+
     private static final String TICKET_FORMAT = "- %-15s %-2s %-10s %-10s\n";
     private static final SimpleDateFormat df = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
@@ -64,12 +68,18 @@ public class TicketsSession {
                 "UPDATE ticketsOld SET count = count + ? WHERE concert = ? and type = ? and maxTickets = ?;");
         DECREMENT = session.prepare(
                 "UPDATE ticketsOld SET count = count - ? WHERE concert = ? and type = ? and maxTickets = ?;");
+        DELETE_ALL_FREETICKET = session.prepare("TRUNCATE freetickets;");
 
         INSERTBUYER = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
         DELETEBUYER = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");*/
 
         INSERTFREETICKET = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
-//        DELETEFREETICKET = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");
+        DELETEFREETICKET = session.prepare("DELETE from freetickets WHERE concert = ? and type = ? and id = ? ;");
+
+        DELETE_ALL_FREETICKETS = session.prepare("TRUNCATE freetickets;");
+        DELETE_ALL_TICKETS = session.prepare("TRUNCATE tickets;");
+        DELETE_ALL_TICKETSINFO = session.prepare("TRUNCATE ticketsinfo;");
+
 
         logger.info("Statements prepared");
     }
@@ -77,6 +87,25 @@ public class TicketsSession {
         BoundStatement bs;
         bs = new BoundStatement(INSERTFREETICKET.setConsistencyLevel(ConsistencyLevel.QUORUM));
         bs.bind(name,type,id);
+        session.execute(bs);
+    }
+    public void deleteFreeTicket(String name,int type,int id){
+        BoundStatement bs;
+        bs = new BoundStatement(DELETEFREETICKET.setConsistencyLevel(ConsistencyLevel.QUORUM));
+        bs.bind(name,type,id);
+        session.execute(bs);
+    }
+
+    public void deleteAllFreeTickets() {
+        BoundStatement bs = new BoundStatement(DELETE_ALL_FREETICKETS);
+        session.execute(bs);
+    }
+    public void deleteAllTickets() {
+        BoundStatement bs = new BoundStatement(DELETE_ALL_TICKETS);
+        session.execute(bs);
+    }
+    public void deleteAllTicketsInfo() {
+        BoundStatement bs = new BoundStatement(DELETE_ALL_TICKETSINFO);
         session.execute(bs);
     }
 
@@ -153,13 +182,6 @@ public class TicketsSession {
 
         logger.info("Ticket count for " + concert + " type " + type + " decremented");
         return true;
-    }
-
-    public void deleteAll() {
-        BoundStatement bs = new BoundStatement(DELETE_ALL);
-        session.execute(bs);
-
-        logger.info("All tickets deleted");
     }
 
     protected void finalize() {

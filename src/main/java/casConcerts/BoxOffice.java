@@ -74,7 +74,9 @@ public class BoxOffice {
     }
 
     public void nuke() {
-        session.deleteAll();
+        session.deleteAllFreeTickets();
+        session.deleteAllTickets();
+        session.deleteAllTicketsInfo();
     }
 
     public String report() {
