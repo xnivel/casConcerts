@@ -46,7 +46,7 @@ public class TestOnlyBuy extends Thread {
         long timestamp=0;
 
         for(int i=0;i<iteration;i++){
-            timestamp=boxOffice.buyTicket(userName,concertName, type,count);
+            timestamp=boxOffice.buyTicket(userName,concertName, type);
         }
     }
 }

@@ -46,14 +46,11 @@ public class Test extends Thread {
         long timestamp=0;
 
         for(int i=0;i<iteration;i++){
-            timestamp=boxOffice.buyTicket(userName,concertName, type,count);
+            timestamp=boxOffice.buyTicket(userName,concertName, type);
             try {
                 Thread.sleep(sleeptime);
             } catch (InterruptedException e) {
                 e.printStackTrace();
-            }
-            if (timestamp > 0) {
-                boxOffice.returnTicket(userName, concertName, type, count, timestamp);
             }
         }
     }

@@ -19,6 +19,7 @@ public class BoxOffice {
         }
     }
 
+
     public int buyTicket(String name, String concert, int type) {
         int id = findFreeId(concert, type);
         if (id < 0) {
@@ -67,22 +68,9 @@ public class BoxOffice {
         return id;
     }
 
-    public void returnTicket(String name,String concert, int type,int count,long timestamp) {
-        long[] selectResults = session.select(concert, type);
-        if(timestamp==0)
-            timestamp=selectResults[1]+100000;
-        if (selectResults[0] != selectResults[2]) {
-            session.increment(name, concert, type, count, (int) selectResults[2], timestamp, selectResults[0] < selectResults[2] * 0.25);
-        }
-    }
-
     public void nuke() {
         session.deleteAllFreeTickets();
         session.deleteAllTickets();
         session.deleteAllTicketsInfo();
-    }
-
-    public String report() {
-        return session.selectAll();
     }
 }

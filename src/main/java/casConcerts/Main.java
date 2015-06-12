@@ -23,12 +23,12 @@ public class Main {
     public static void showhelp() {
         System.out.println("i-init");
         System.out.println("b-buy");
-        System.out.println("p-print");
-        System.out.println("s-sell");
+        System.out.println("c-clear");
         System.out.println("e-exit");
         System.out.println("h-help");
         System.out.println("t-test");
         System.out.println("m-multi-test");
+        System.out.println("M-Buy only test");
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
@@ -50,7 +50,7 @@ public class Main {
             }
             if (comand.contains("M")) {
                 String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
-                boxOffice.init("Slayer", 1, 1000000);
+                boxOffice.init("Slayer", 1, 10000);
                 ArrayList<TestOnlyBuy> tests = new ArrayList<>();
                 for (String name : names) {
                     TestOnlyBuy t = new TestOnlyBuy();
@@ -94,11 +94,8 @@ public class Main {
                 }
             }
             if (comand.contains("b"))
-                timestamp=boxOffice.buyTicket("Bob","Slayer", 1,1);
-            if (comand.contains("p"))
-                System.out.print(boxOffice.report());
-            if (comand.contains("s"))
-                boxOffice.returnTicket("Bob","Slayer", 1,1,timestamp);
+                while(boxOffice.buyTicket("Bob","Slayer", 1)==-1);
+
             if (comand.contains("c"))
                 boxOffice.nuke();
             if (comand.contains("e"))
