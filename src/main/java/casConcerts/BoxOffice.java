@@ -2,6 +2,7 @@ package casConcerts;
 
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.Set;
 
 public class BoxOffice {
     private Random random;
@@ -25,8 +26,8 @@ public class BoxOffice {
         }
 
         session.addToCandidates(name, concert, type, id);
-        ArrayList<String> candidates = session.getCandidates(name, concert, type, id);
-        if (candidates.size() == 1 && candidates.get(0).equals(name)) {
+        Set<String> candidates = session.getCandidates(concert, type, id);
+        if (candidates.size() == 1 && candidates.contains(name)) {
             session.setOwner(name, concert, type, id);
             return id;
         }
@@ -43,7 +44,7 @@ public class BoxOffice {
         int maxTickets = session.getMaxTickets(concert, type);
 
         boolean foundFree = false;
-        int id;
+        int id = -1;
 
         for (int i = 0; i < 3; i++) {
             id = random.nextInt(maxTickets);

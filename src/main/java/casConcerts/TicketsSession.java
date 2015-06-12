@@ -1,6 +1,8 @@
 package casConcerts;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Set;
 
 import com.datastax.driver.core.*;
 import org.slf4j.Logger;
@@ -51,6 +53,13 @@ public class TicketsSession {
     private static PreparedStatement INSERTFREETICKET;
     private static PreparedStatement DELETEFREETICKET;
     private static PreparedStatement SELECTFREETICKET;
+    private static PreparedStatement ADD_TO_CANDIDATES;
+    private static PreparedStatement GET_CANDIDATES;
+    private static PreparedStatement GET_MAX_TICKETS;
+    private static PreparedStatement GET_OWNER;
+    private static PreparedStatement SET_OWNER;
+    private static PreparedStatement SET_OWNER_TRANSACTION;
+    private static PreparedStatement GET_FREE_TICKETS;
 
     private static final String TICKET_FORMAT = "- %-15s %-2s %-10s %-10s\n";
     private static final SimpleDateFormat df = new SimpleDateFormat(
@@ -70,6 +79,13 @@ public class TicketsSession {
 
         INSERTFREETICKET = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
 //        DELETEFREETICKET = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");
+        ADD_TO_CANDIDATES = session.prepare("UPDATE tickets SET candidates = candidates + {?} WHERE concert = ? and type = ? and id = ?");
+        GET_CANDIDATES = session.prepare("SELECT candidates FROM tickets WHERE concert = ? and type = ? and id = ?");
+        GET_MAX_TICKETS = session.prepare("SELECT maxTickets FROM ticketsInfo WHERE concert = ? and type = ?");
+        GET_OWNER = session.prepare("SELECT owner FROM tickets WHERE concert = ? and type = ? and id = ?");
+        SET_OWNER = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ?");
+        SET_OWNER_TRANSACTION = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ? IF owner IS NULL");
+        GET_FREE_TICKETS = session.prepare("SELECT id FROM freetickets WHERE concert = ? and type = ?");
 
         logger.info("Statements prepared");
     }
@@ -102,6 +118,64 @@ public class TicketsSession {
         session.execute(bs);
 
         logger.info("Max tickets for " + concert + " type " + type + " set to " + maxTickets);
+    }
+
+    public void addToCandidates(String name, String concert, int type, int id) {
+        BoundStatement bs = new BoundStatement(ADD_TO_CANDIDATES);
+        bs.bind(name, concert, type, id);
+        session.execute(bs);
+    }
+
+    public Set<String> getCandidates(String concert, int type, int id) {
+        BoundStatement bs = new BoundStatement(GET_CANDIDATES);
+        bs.bind(concert, type, id);
+        ResultSet rs = session.execute(bs);
+        Row row = rs.one();
+        return row.getSet("candidates", String.class);
+    }
+
+    public int getMaxTickets(String concert, int type) {
+        BoundStatement bs = new BoundStatement(GET_MAX_TICKETS);
+        bs.bind(concert, type);
+        ResultSet rs = session.execute(bs);
+        Row row = rs.one();
+        return row.getInt("maxTickets");
+    }
+
+    public boolean isFree(String concert, int type, int id) {
+        BoundStatement bs = new BoundStatement(GET_OWNER);
+        bs.bind(concert, type, id);
+        ResultSet rs = session.execute(bs);
+        Row row = rs.one();
+        String owner = row.getString("owner");
+        return owner == null;
+    }
+
+    public void setOwner(String name, String concert, int type, int id) {
+        BoundStatement bs = new BoundStatement(SET_OWNER);
+        bs.bind(name, concert, type, id);
+        session.execute(bs);
+    }
+
+    public boolean setOwnerTransaction(String name, String concert, int type, int id) {
+        BoundStatement bs = new BoundStatement(SET_OWNER_TRANSACTION);
+        bs.bind(name, concert, type, id);
+        ResultSet rs = session.execute(bs);
+        Row row = rs.one();
+        return row.getBool("[applied]");
+    }
+
+    public ArrayList<Integer> getFreeTickets(String concert, int type) {
+        BoundStatement bs = new BoundStatement(GET_FREE_TICKETS);
+        bs.bind(concert, type);
+        ResultSet rs = session.execute(bs);
+
+        ArrayList<Integer> ids = new ArrayList<>();
+        for (Row row : rs) {
+            int id = row.getInt("id");
+            ids.add(id);
+        }
+        return ids;
     }
 
     public long[] select(String concert, int type) {
@@ -171,5 +245,4 @@ public class TicketsSession {
             logger.error("Could not close existing cluster", e);
         }
     }
-
 }
