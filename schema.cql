@@ -20,3 +20,9 @@ CREATE TABLE freetickets (
   id int,
   PRIMARY KEY ((concert, type), id)
 );
+CREATE TABLE ticketsInfo (
+  concert varchar,
+  type int,
+  maxTickets int,
+  PRIMARY KEY (concert, type)
+);
