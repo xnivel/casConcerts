@@ -58,7 +58,6 @@ public class TicketsSession {
     private static PreparedStatement DELETE_ALL_TICKETS;
     private static PreparedStatement DELETE_ALL_TICKETSINFO;
 
-    private static final String TICKET_FORMAT = "- %-15s %-2s %-10s %-10s\n";
     private static final SimpleDateFormat df = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss");
 
