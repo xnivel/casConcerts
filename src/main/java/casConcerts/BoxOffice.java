@@ -14,6 +14,7 @@ public class BoxOffice {
     }
 
     public void init(String concert, int type, int maxTickets) {
+        session.insertMaxTickets(concert, type, maxTickets);
         for(int i=0;i<maxTickets;i++){
             session.insertFreeTicket(concert,type,i);
         }

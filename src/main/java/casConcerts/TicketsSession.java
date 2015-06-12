@@ -45,7 +45,10 @@ public class TicketsSession {
     private static PreparedStatement DELETEFREETICKET;
     private static PreparedStatement ADD_TO_CANDIDATES;
     private static PreparedStatement GET_CANDIDATES;
+
     private static PreparedStatement GET_MAX_TICKETS;
+    private static PreparedStatement SET_MAX_TICKETS;
+
     private static PreparedStatement GET_OWNER;
     private static PreparedStatement SET_OWNER;
     private static PreparedStatement SET_OWNER_TRANSACTION;
@@ -70,6 +73,8 @@ public class TicketsSession {
         ADD_TO_CANDIDATES = session.prepare("UPDATE tickets SET candidates = candidates + ? WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         GET_CANDIDATES = session.prepare("SELECT candidates FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         GET_MAX_TICKETS = session.prepare("SELECT maxTickets FROM ticketsInfo WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
+        SET_MAX_TICKETS = session.prepare("UPDATE ticketsInfo SET maxTickets=? WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
+
         GET_OWNER = session.prepare("SELECT owner FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         SET_OWNER = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         SET_OWNER_TRANSACTION = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ? IF owner = NULL").setConsistencyLevel(ConsistencyLevel.QUORUM);
@@ -77,15 +82,21 @@ public class TicketsSession {
 
         logger.info("Statements prepared");
     }
+    public void insertMaxTickets(String name,int type,int max){
+        BoundStatement bs;
+        bs = new BoundStatement(SET_MAX_TICKETS);
+        bs.bind(max,name,type);
+        session.execute(bs);
+    }
     public void insertFreeTicket(String name,int type,int id){
         BoundStatement bs;
-        bs = new BoundStatement(INSERTFREETICKET.setConsistencyLevel(ConsistencyLevel.QUORUM));
+        bs = new BoundStatement(INSERTFREETICKET);
         bs.bind(name,type,id);
         session.execute(bs);
     }
     public void deleteFreeTicket(String concert, int type, int id){
         BoundStatement bs;
-        bs = new BoundStatement(DELETEFREETICKET.setConsistencyLevel(ConsistencyLevel.QUORUM));
+        bs = new BoundStatement(DELETEFREETICKET);
         bs.bind(concert, type, id);
         session.execute(bs);
     }
@@ -132,8 +143,7 @@ public class TicketsSession {
         bs.bind(concert, type, id);
         ResultSet rs = session.execute(bs);
         Row row = rs.one();
-        String owner = row.getString("owner");
-        return owner == null;
+        return row == null;
     }
 
     public void setOwner(String name, String concert, int type, int id) {

@@ -93,8 +93,13 @@ public class Main {
                     t.join();
                 }
             }
-            if (comand.contains("b"))
-                while(boxOffice.buyTicket("Bob","Slayer", 1)==-1);
+            if (comand.contains("b")) {
+                int result=boxOffice.buyTicket("Bob", "Slayer", 1);
+                while (result == -1) {
+                    result=boxOffice.buyTicket("Bob", "Slayer", 1);
+                };
+                System.out.println("buied ticket "+result);
+            }
 
             if (comand.contains("c"))
                 boxOffice.nuke();
