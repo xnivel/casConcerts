@@ -1,39 +1,39 @@
-package kaskaclub;
-
-import java.text.SimpleDateFormat;
+package casConcerts;
 
 import com.datastax.driver.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TicketsSession implements ITicketsSession {
+import java.text.SimpleDateFormat;
+
+public class NewTicketsSession implements ITicketsSession {
     private static final Logger logger = LoggerFactory
-            .getLogger(TicketsSession.class);
+            .getLogger(NewTicketsSession.class);
 
     public static final String DEFAULT_CONTACT_POINT = "127.0.0.1";
-    public static TicketsSession instance = null;
+    public static NewTicketsSession instance = null;
 
     private Session session;
 
-    public static TicketsSession getSession() {
+    public static NewTicketsSession getSession() {
         if (instance != null)
             return instance;
 
-        synchronized (TicketsSession.class) {
+        synchronized (NewTicketsSession.class) {
             if (instance == null)
-                instance = new TicketsSession(null);
+                instance = new NewTicketsSession(null);
         }
 
         return instance;
     }
 
-    public TicketsSession(String contactPoint) {
+    public NewTicketsSession(String contactPoint) {
         if (contactPoint == null || contactPoint.isEmpty())
             contactPoint = DEFAULT_CONTACT_POINT;
 
         Cluster cluster = Cluster.builder()
                 .addContactPoint(contactPoint).build();
-        session = cluster.connect("kaskaclub");
+        session = cluster.connect("casConcerts");
 
         prepareStatements();
     }
@@ -53,14 +53,14 @@ public class TicketsSession implements ITicketsSession {
             "yyyy-MM-dd HH:mm:ss");
 
     private void prepareStatements() {
-        INIT = session.prepare("UPDATE ticketsOld SET count = count + ? where concert = ? and type = ? and maxTickets = ?");
-        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM ticketsOld WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ONE);
-        SELECT_ALL = session.prepare("SELECT * FROM ticketsOld;");
+        INIT = session.prepare("UPDATE tickets SET count = ? where concert = ? and type = ? and maxTickets = ?");
+        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM tickets WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ONE);
+        SELECT_ALL = session.prepare("SELECT * FROM tickets;");
         INCREMENT = session.prepare(
-                "UPDATE ticketsOld SET count = count + ? WHERE concert = ? and type = ? and maxTickets = ?;");
+                "UPDATE tickets SET count = ? WHERE concert = ? and type = ? and maxTickets = ? if count = ?;");
         DECREMENT = session.prepare(
-                "UPDATE ticketsOld SET count = count - ? WHERE concert = ? and type = ? and maxTickets = ?;");
-        DELETE_ALL = session.prepare("TRUNCATE ticketsOld;");
+                "UPDATE tickets SET count = ? WHERE concert = ? and type = ? and maxTickets = ? if count = ?;");
+        DELETE_ALL = session.prepare("TRUNCATE tickets;");
 
 
         INSERTBUYER = session.prepare("UPDATE ticketsboughtby USING TIMESTAMP ? SET  count = ?,timestamp=? WHERE name = ? and concert = ? and type = ?;");
@@ -78,7 +78,7 @@ public class TicketsSession implements ITicketsSession {
             String concert = row.getString("concert");
             int type = row.getInt("type");
             int maxTickets = row.getInt("maxTickets");
-            long count = row.getLong("count");
+            int count = row.getInt("count");
 
             builder.append(String.format(TICKET_FORMAT, concert, type, maxTickets, count));
         }
@@ -88,8 +88,8 @@ public class TicketsSession implements ITicketsSession {
 
     @Override
     public void init(String concert, int type, int maxTickets) {
-        BoundStatement bs = new BoundStatement(INIT);
-        bs.bind((long)maxTickets, concert, type, maxTickets);
+        BoundStatement bs = new BoundStatement(INIT.setConsistencyLevel(ConsistencyLevel.ALL));
+        bs.bind(maxTickets, concert, type, maxTickets);
         session.execute(bs);
 
         logger.info("Max tickets for " + concert + " type " + type + " set to " + maxTickets);
@@ -102,8 +102,7 @@ public class TicketsSession implements ITicketsSession {
         bs.bind(concert, type);
         ResultSet rs = session.execute(bs);
         Row row=rs.one();
-        System.out.println(row.getColumnDefinitions().toString());
-        long count =row.getLong("count");
+        long count =row.getInt("count");
         long timestamp = row.getLong(1);
         long maxtickets = (long)row.getInt("maxTickets");
 
@@ -115,33 +114,80 @@ public class TicketsSession implements ITicketsSession {
     @Override
     public Boolean increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
-        if(accurate)
-             bs = new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
-        else
-            bs = new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.ONE));
-        bs.bind((long)count,concert, type, maxTickets);
-        session.execute(bs);
+        boolean correct_execute = false;
+        while(!correct_execute) {
+            try {
+                long[] selectResult = select(concert, type);
+                int oldCount = (int)selectResult[0];
 
+                if (oldCount >= maxTickets) {
+                    logger.info("Ticket count for " + concert + " type " + type + " is at max");
+                    return false;
+                }
+
+                int newCount = oldCount + count;
+
+                bs= new BoundStatement(INCREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
+                bs.bind(newCount,concert, type, maxTickets, oldCount);
+
+                ResultSet rs = session.execute(bs);
+                Row row = rs.one();
+                if (row.getBool("[applied]")) {
+                    correct_execute = true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
 
         bs= new BoundStatement(DELETEBUYER.setConsistencyLevel(ConsistencyLevel.ONE));
         bs.bind(timestamp+1,concert, type, name);
         session.execute(bs);
 
         logger.info("Ticket count for " + concert + " type " + type + " incremented");
+
         return true;
     }
 
     @Override
     public Boolean decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
-        if (accurate)
-            bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
-        else
-            bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.ONE));
-        bs.bind((long)count,concert, type, maxTickets);
-        session.execute(bs);
+        boolean correct_execute=false;
+        while(!correct_execute) {
+            try {
+                long[] selectResult = select(concert, type);
+                int oldCount = (int)selectResult[0];
 
-        bs = new BoundStatement(INSERTBUYER.setConsistencyLevel(ConsistencyLevel.ONE));
+                if (oldCount == 0) {
+                    logger.info("Ticket count for " + concert + " type " + type + " is 0");
+                    return false;
+                }
+
+                int newCount = oldCount - count;
+
+                bs= new BoundStatement(DECREMENT.setConsistencyLevel(ConsistencyLevel.QUORUM));
+                bs.bind(newCount,concert, type, maxTickets, oldCount);
+
+                ResultSet rs = session.execute(bs);
+                Row row = rs.one();
+                if (row.getBool("[applied]")) {
+                    correct_execute = true;
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e1) {
+                    e1.printStackTrace();
+                }
+            }
+        }
+        bs = new BoundStatement(INSERTBUYER.setConsistencyLevel(ConsistencyLevel.QUORUM));
         bs.bind(timestamp,count,timestamp,name,concert, type);
         session.execute(bs);
 

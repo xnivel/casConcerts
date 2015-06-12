@@ -1,4 +1,4 @@
-package kaskaclub;
+package casConcerts;
 
 /**
  * Created by xnivel on 10.06.15.

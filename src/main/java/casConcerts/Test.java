@@ -1,4 +1,4 @@
-package kaskaclub;
+package casConcerts;
 
 public class Test extends Thread {
     int iteration;

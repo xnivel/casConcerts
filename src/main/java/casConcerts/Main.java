@@ -13,12 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package kaskaclub;
+package casConcerts;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -48,7 +46,7 @@ public class Main {
             comand = cin.nextLine();
 
             if (comand.contains("i")) {
-                boxOffice.init("Slayer", 1, 10);
+                boxOffice.init("Slayer", 1, 1000);
             }
             if (comand.contains("M")) {
                 String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
