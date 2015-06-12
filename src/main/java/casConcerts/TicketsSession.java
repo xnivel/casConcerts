@@ -70,32 +70,20 @@ public class TicketsSession {
             "yyyy-MM-dd HH:mm:ss");
 
     private void prepareStatements() {
-     /*   INIT = session.prepare("UPDATE ticketsOld SET count = count + ? where concert = ? and type = ? and maxTickets = ?");
-        SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM ticketsOld WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ONE);
-        SELECT_ALL = session.prepare("SELECT * FROM ticketsOld;");
-        INCREMENT = session.prepare(
-                "UPDATE ticketsOld SET count = count + ? WHERE concert = ? and type = ? and maxTickets = ?;");
-        DECREMENT = session.prepare(
-                "UPDATE ticketsOld SET count = count - ? WHERE concert = ? and type = ? and maxTickets = ?;");
-        DELETE_ALL_FREETICKET = session.prepare("TRUNCATE freetickets;");
-
-        INSERTBUYER = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
-        DELETEBUYER = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");*/
-
-        INSERTFREETICKET = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
-        DELETEFREETICKET = session.prepare("DELETE from freetickets WHERE concert = ? and type = ? and id = ? ;");
+        INSERTFREETICKET = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)").setConsistencyLevel(ConsistencyLevel.ONE);
+        DELETEFREETICKET = session.prepare("DELETE from freetickets WHERE concert = ? and type = ? and id = ? ;").setConsistencyLevel(ConsistencyLevel.ONE);
 
         DELETE_ALL_FREETICKETS = session.prepare("TRUNCATE freetickets;");
         DELETE_ALL_TICKETS = session.prepare("TRUNCATE tickets;");
         DELETE_ALL_TICKETSINFO = session.prepare("TRUNCATE ticketsinfo;");
 
-        ADD_TO_CANDIDATES = session.prepare("UPDATE tickets SET candidates = candidates + {?} WHERE concert = ? and type = ? and id = ?");
-        GET_CANDIDATES = session.prepare("SELECT candidates FROM tickets WHERE concert = ? and type = ? and id = ?");
-        GET_MAX_TICKETS = session.prepare("SELECT maxTickets FROM ticketsInfo WHERE concert = ? and type = ?");
-        GET_OWNER = session.prepare("SELECT owner FROM tickets WHERE concert = ? and type = ? and id = ?");
-        SET_OWNER = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ?");
-        SET_OWNER_TRANSACTION = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ? IF owner IS NULL");
-        GET_FREE_TICKETS = session.prepare("SELECT id FROM freetickets WHERE concert = ? and type = ?");
+        ADD_TO_CANDIDATES = session.prepare("UPDATE tickets SET candidates = candidates + {?} WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        GET_CANDIDATES = session.prepare("SELECT candidates FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        GET_MAX_TICKETS = session.prepare("SELECT maxTickets FROM ticketsInfo WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
+        GET_OWNER = session.prepare("SELECT owner FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        SET_OWNER = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        SET_OWNER_TRANSACTION = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ? IF owner IS NULL").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        GET_FREE_TICKETS = session.prepare("SELECT id FROM freetickets WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
 
         logger.info("Statements prepared");
     }
