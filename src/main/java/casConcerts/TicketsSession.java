@@ -6,7 +6,7 @@ import com.datastax.driver.core.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TicketsSession implements ITicketsSession {
+public class TicketsSession {
     private static final Logger logger = LoggerFactory
             .getLogger(TicketsSession.class);
 
@@ -57,25 +57,29 @@ public class TicketsSession implements ITicketsSession {
             "yyyy-MM-dd HH:mm:ss");
 
     private void prepareStatements() {
-        INIT = session.prepare("UPDATE ticketsOld SET count = count + ? where concert = ? and type = ? and maxTickets = ?");
+     /*   INIT = session.prepare("UPDATE ticketsOld SET count = count + ? where concert = ? and type = ? and maxTickets = ?");
         SELECT = session.prepare("SELECT count,blobAsBigInt(timestampAsBlob(dateof(now()))),maxTickets FROM ticketsOld WHERE concert = ? and type = ?;").setConsistencyLevel(ConsistencyLevel.ONE);
         SELECT_ALL = session.prepare("SELECT * FROM ticketsOld;");
         INCREMENT = session.prepare(
                 "UPDATE ticketsOld SET count = count + ? WHERE concert = ? and type = ? and maxTickets = ?;");
         DECREMENT = session.prepare(
                 "UPDATE ticketsOld SET count = count - ? WHERE concert = ? and type = ? and maxTickets = ?;");
-        DELETE_ALL = session.prepare("TRUNCATE ticketsOld;");
 
         INSERTBUYER = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
-        DELETEBUYER = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");
+        DELETEBUYER = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");*/
 
         INSERTFREETICKET = session.prepare("INSERT INTO freetickets (concert,type,id) VALUES (?,?,?)");
-        DELETEFREETICKET = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");
+//        DELETEFREETICKET = session.prepare("DELETE from ticketsboughtby USING TIMESTAMP ? WHERE concert = ? and type = ? and id = ? ;");
 
         logger.info("Statements prepared");
     }
+    public void insertFreeTicket(String name,int type,int id){
+        BoundStatement bs;
+        bs = new BoundStatement(INSERTFREETICKET.setConsistencyLevel(ConsistencyLevel.QUORUM));
+        bs.bind(name,type,id);
+        session.execute(bs);
+    }
 
-    @Override
     public String selectAll() {
         StringBuilder builder = new StringBuilder();
         BoundStatement bs = new BoundStatement(SELECT_ALL);
@@ -92,7 +96,6 @@ public class TicketsSession implements ITicketsSession {
         return builder.toString();
     }
 
-    @Override
     public void init(String concert, int type, int maxTickets) {
         BoundStatement bs = new BoundStatement(INIT);
         bs.bind((long)maxTickets, concert, type, maxTickets);
@@ -101,7 +104,6 @@ public class TicketsSession implements ITicketsSession {
         logger.info("Max tickets for " + concert + " type " + type + " set to " + maxTickets);
     }
 
-    @Override
     public long[] select(String concert, int type) {
         StringBuilder builder = new StringBuilder();
         BoundStatement bs = new BoundStatement(SELECT);
@@ -118,7 +120,6 @@ public class TicketsSession implements ITicketsSession {
         return result;
     }
 
-    @Override
     public Boolean increment(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         if(accurate)
@@ -137,7 +138,6 @@ public class TicketsSession implements ITicketsSession {
         return true;
     }
 
-    @Override
     public Boolean decrement(String name, String concert, int type, int count, int maxTickets, long timestamp, boolean accurate) {
         BoundStatement bs;
         if (accurate)
@@ -155,7 +155,6 @@ public class TicketsSession implements ITicketsSession {
         return true;
     }
 
-    @Override
     public void deleteAll() {
         BoundStatement bs = new BoundStatement(DELETE_ALL);
         session.execute(bs);

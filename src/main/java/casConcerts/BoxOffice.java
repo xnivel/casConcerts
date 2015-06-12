@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class BoxOffice {
-    private ITicketsSession session;
     private Random random;
+    private TicketsSession session;
 
     public BoxOffice() {
         session = new TicketsSession("127.0.0.1");
@@ -13,7 +13,9 @@ public class BoxOffice {
     }
 
     public void init(String concert, int type, int maxTickets) {
-        session.init(concert, type, maxTickets);
+        for(int i=0;i<maxTickets;i++){
+            session.insertFreeTicket(concert,type,i);
+        }
     }
 
     public int buyTicket(String name, String concert, int type) {
