@@ -43,10 +43,15 @@ public class TestOnlyBuy extends Thread {
     }
 
     public void run(){
-        long timestamp=0;
+        int id = -1;
 
         for(int i=0;i<iteration;i++){
-            timestamp=boxOffice.buyTicket(userName,concertName, type);
+            while (id < 0) {
+                id = boxOffice.buyTicket(userName, concertName, type);
+                System.out.print(".");
+            }
+            System.out.println();
+            System.out.println(i + ": Ticket bought successfully, id = " + id);
         }
     }
 }
