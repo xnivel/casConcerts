@@ -3,13 +3,17 @@ package casConcerts;
 import java.util.ArrayList;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class BoxOffice {
     private Random random;
     private TicketsSession session;
-    private int limit=20;
+    private int limit=10;
+    public AtomicInteger lwtCount;
 
     public BoxOffice() {
+        this.lwtCount = new AtomicInteger(0);
+
         session = new TicketsSession("127.0.0.1");
         random = new Random();
     }
@@ -37,6 +41,8 @@ public class BoxOffice {
             session.setOwner(name, concert, type, id);
             return id;
         }
+
+        this.lwtCount.getAndIncrement();
 
         boolean ok = session.setOwnerTransaction(name, concert, type, id);
         if (ok) {
