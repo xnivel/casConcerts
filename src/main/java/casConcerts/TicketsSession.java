@@ -55,6 +55,7 @@ public class TicketsSession {
 
     private static PreparedStatement DELETE_ALL_TICKETS;
     private static PreparedStatement DELETE_ALL_TICKETSINFO;
+    private static PreparedStatement DELETE_ALL_INTERVALSTICKETS;
 
     private static PreparedStatement GET_MORE_TICKETS;
 
@@ -71,6 +72,8 @@ public class TicketsSession {
 
         DELETE_ALL_TICKETS = session.prepare("TRUNCATE tickets;");
         DELETE_ALL_TICKETSINFO = session.prepare("TRUNCATE ticketsinfo;");
+        DELETE_ALL_INTERVALSTICKETS = session.prepare("TRUNCATE intervaltickets;");
+
 
         ADD_TO_CANDIDATES = session.prepare("UPDATE tickets SET candidates = candidates + ? WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         GET_CANDIDATES = session.prepare("SELECT candidates FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
@@ -135,6 +138,10 @@ public class TicketsSession {
         BoundStatement bs = new BoundStatement(DELETE_ALL_TICKETSINFO);
         session.execute(bs);
     }
+    public void deleteAllIntervalstickets() {
+        BoundStatement bs = new BoundStatement(DELETE_ALL_INTERVALSTICKETS);
+        session.execute(bs);
+    }
 
     public void addToCandidates(String name, String concert, int type, int id) {
         BoundStatement bs = new BoundStatement(ADD_TO_CANDIDATES);
@@ -166,7 +173,8 @@ public class TicketsSession {
         ResultSet rs = session.execute(bs);
         Row row = rs.one();
         String owner = row.getString("owner");
-        return owner == null;
+        Set<String> can = row.getSet("candidates", String.class);
+        return owner == null && can.size()==0;
     }
     public int getFreeTicket(String concert, int type, int id,int limit) {
         BoundStatement bs = new BoundStatement(GET_MORE_TICKETS);

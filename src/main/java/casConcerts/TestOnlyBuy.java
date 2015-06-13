@@ -1,5 +1,7 @@
 package casConcerts;
 
+import java.util.HashMap;
+
 public class TestOnlyBuy extends Thread {
     int iteration;
     String concertName;
@@ -8,6 +10,9 @@ public class TestOnlyBuy extends Thread {
     int type;
     int sleeptime;
     BoxOffice boxOffice;
+
+    public int missCount=0;
+    HashMap<Integer,Integer> MapOfBoughtTickets= new HashMap<Integer,Integer>();
 
     public void setUserName(String userName) {
         this.userName = userName;
@@ -47,10 +52,19 @@ public class TestOnlyBuy extends Thread {
             int id = -1;
             while (id < 0) {
                 id = boxOffice.buyTicket(userName, concertName, type);
-                System.out.print(".");
+                missCount++;
+     //           System.out.print(".");
             }
-            System.out.println();
-            System.out.println(i + ": Ticket bought successfully, id = " + id);
+            missCount--;
+            Integer tmp=MapOfBoughtTickets.get(id);
+            if(tmp!=null){
+                MapOfBoughtTickets.put(id, tmp + 1);
+            }else{
+                MapOfBoughtTickets.put(id,1);
+            }
+
+  //          System.out.println();
+//            System.out.println(i + ": Ticket bought successfully, id = " + id);
         }
     }
 }

@@ -17,8 +17,9 @@ package casConcerts;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void showhelp() {
@@ -59,7 +60,7 @@ public class Main {
                 ArrayList<TestOnlyBuy> tests = new ArrayList<>();
                 for (String name : names) {
                     TestOnlyBuy t = new TestOnlyBuy();
-                    t.setAll(100, "Slayer", 1, 1000, name, 1,boxOffice);
+                    t.setAll(100, "Slayer", 1, 500, name, 1,boxOffice);
                     tests.add(t);
                 }
                 long start_time = System.nanoTime();
@@ -72,6 +73,31 @@ public class Main {
                 }
                 System.out.println("ilosc lwt: "+boxOffice.lwtCount.get());
                 long end_time = System.nanoTime();
+                int missCount=0;
+                HashMap<Integer,Integer> MapOfBoughtTickets= new HashMap<Integer,Integer>();
+
+                for (TestOnlyBuy t: tests) {
+                    missCount+=t.missCount;
+                    for(Map.Entry<Integer,Integer> e: t.MapOfBoughtTickets.entrySet()){
+                        Integer tmp=MapOfBoughtTickets.get(e.getKey());
+                        if(tmp!=null){
+                            MapOfBoughtTickets.put(e.getKey(), tmp + e.getValue());
+                        }else{
+                            MapOfBoughtTickets.put(e.getKey(), 1);
+                        }
+                    }
+                }
+                System.out.println("miss count - " + missCount);
+                int boughtbymorethenone=0;
+                for(Map.Entry<Integer,Integer> e: MapOfBoughtTickets.entrySet()){
+                    if(e.getValue()>1){
+                        System.out.println("k: "+e.getKey()+" v: "+e.getValue());
+                        boughtbymorethenone++;
+                    }
+                }
+                System.out.println("tickets sell to more then one - " + boughtbymorethenone);
+                System.out.println("tickets sold - "+MapOfBoughtTickets.size());
+
                 double difference = (end_time - start_time)/1e9;
                 System.out.println("time - "+difference);
             }

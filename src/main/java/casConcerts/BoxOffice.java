@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BoxOffice {
     private Random random;
     private TicketsSession session;
-    private int limit=10;
+    private int limit=50;
     public AtomicInteger lwtCount;
 
     public BoxOffice() {
@@ -44,7 +44,17 @@ public class BoxOffice {
 
         this.lwtCount.getAndIncrement();
 
-        boolean ok = session.setOwnerTransaction(name, concert, type, id);
+        boolean correct=false;
+        boolean ok=false;
+        while(!correct) {
+            try{
+                ok= session.setOwnerTransaction(name, concert, type, id);
+                correct=true;
+            }catch (Exception e){
+
+            }
+
+        }
         if (ok) {
             return id;
         } else {
@@ -92,5 +102,6 @@ public class BoxOffice {
     public void nuke() {
         session.deleteAllTickets();
         session.deleteAllTicketsInfo();
+        session.deleteAllIntervalstickets();
     }
 }
