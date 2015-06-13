@@ -20,7 +20,7 @@ public class BoxOffice {
             session.insertNewTickets(concert, type, i);
         }
         for(int i=0;i<maxTickets;i+=limit){
-            session.insertInterval(concert,type,i);
+            session.insertInterval(concert, type, i);
         }
     }
 
@@ -61,12 +61,13 @@ public class BoxOffice {
         }
         ArrayList<Integer> intervalsList = session.getIntervals(concert,type);
         int tmpid;
-        int index = random.nextInt(intervalsList.size());
+        int index;
         while (!foundFree) {
             if(intervalsList.size()==0){
                 return -1;
             }
-            tmpid=session.getFreeTicket(concert,type,intervalsList.get(index),limit);
+            index = random.nextInt(intervalsList.size());
+            tmpid = session.getFreeTicket(concert,type,intervalsList.get(index),limit);
             if(tmpid==-1){
                 session.removeInterval(concert,type,intervalsList.get(index));
                 intervalsList.remove(index);
