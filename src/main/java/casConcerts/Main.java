@@ -57,12 +57,17 @@ public class Main {
                     t.setAll(1000, "Slayer", 1, 1000, name, 1,boxOffice);
                     tests.add(t);
                 }
+                long start_time = System.nanoTime();
+
                 for (TestOnlyBuy t: tests) {
                     t.start();
                 }
                 for (TestOnlyBuy t: tests) {
                     t.join();
                 }
+                long end_time = System.nanoTime();
+                double difference = (end_time - start_time)/1e9;
+                System.out.println("time - "+difference);
             }
             if (comand.contains("h")) {
                 showhelp();

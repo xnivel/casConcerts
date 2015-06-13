@@ -14,12 +14,13 @@ CREATE TABLE tickets (
   PRIMARY KEY (concert, type, id)
 );
 
-CREATE TABLE freetickets (
+CREATE TABLE intervaltickets (
   concert varchar,
   type int,
   id int,
   PRIMARY KEY ((concert, type), id)
 );
+
 CREATE TABLE ticketsInfo (
   concert varchar,
   type int,

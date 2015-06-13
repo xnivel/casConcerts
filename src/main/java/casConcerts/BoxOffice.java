@@ -7,6 +7,7 @@ import java.util.Set;
 public class BoxOffice {
     private Random random;
     private TicketsSession session;
+    private int limit=200;
 
     public BoxOffice() {
         session = new TicketsSession("127.0.0.1");
@@ -16,7 +17,7 @@ public class BoxOffice {
     public void init(String concert, int type, int maxTickets) {
         session.insertMaxTickets(concert, type, maxTickets);
         for(int i=0;i<maxTickets;i++){
-            session.insertFreeTicket(concert,type,i);
+            session.insertNewTickets(concert, type, i);
         }
     }
 
@@ -31,13 +32,11 @@ public class BoxOffice {
         Set<String> candidates = session.getCandidates(concert, type, id);
         if (candidates.size() == 1 && candidates.contains(name)) {
             session.setOwner(name, concert, type, id);
-            session.deleteFreeTicket(concert, type, id);
             return id;
         }
 
         boolean ok = session.setOwnerTransaction(name, concert, type, id);
         if (ok) {
-            session.deleteFreeTicket(concert, type, id);
             return id;
         } else {
             return -1;
@@ -50,27 +49,36 @@ public class BoxOffice {
         boolean foundFree = false;
         int id = -1;
 
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 15; i++) {
             id = random.nextInt(maxTickets);
             if (session.isFree(concert, type, id)) {
                 foundFree = true;
                 break;
             }
         }
-
+        int goToEnd=0;
+        int tmpid;
         while (!foundFree) {
-            ArrayList<Integer> freeIds = session.getFreeTickets(concert, type);
-            if (freeIds.size() == 0) {
+            tmpid=session.getFreeTicket(concert,type,id,limit);
+            if(tmpid==-1){
+                id=id+limit;
+                if(id>maxTickets)
+                {
+                    id=0;
+                    goToEnd++;
+                }
+            }else{
+                return tmpid;
+            }
+            if (goToEnd >= 1) {
                 return -1;
             }
-            id = freeIds.get(random.nextInt(freeIds.size()));
         }
 
         return id;
     }
 
     public void nuke() {
-        session.deleteAllFreeTickets();
         session.deleteAllTickets();
         session.deleteAllTicketsInfo();
     }
