@@ -165,7 +165,8 @@ public class TicketsSession {
         bs.bind(concert, type, id);
         ResultSet rs = session.execute(bs);
         Row row = rs.one();
-        return row == null;
+        String owner = row.getString("owner");
+        return owner == null;
     }
     public int getFreeTicket(String concert, int type, int id,int limit) {
         BoundStatement bs = new BoundStatement(GET_MORE_TICKETS);
