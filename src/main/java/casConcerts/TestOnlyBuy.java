@@ -43,9 +43,8 @@ public class TestOnlyBuy extends Thread {
     }
 
     public void run(){
-        int id = -1;
-
         for(int i=0;i<iteration;i++){
+            int id = -1;
             while (id < 0) {
                 id = boxOffice.buyTicket(userName, concertName, type);
                 System.out.print(".");
