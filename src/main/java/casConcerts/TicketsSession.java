@@ -49,7 +49,7 @@ public class TicketsSession {
     private static PreparedStatement GET_MAX_TICKETS;
     private static PreparedStatement SET_MAX_TICKETS;
 
-    private static PreparedStatement GET_OWNER;
+    private static PreparedStatement GET_OWNER_CANDIDATES;
     private static PreparedStatement SET_OWNER;
     private static PreparedStatement SET_OWNER_TRANSACTION;
 
@@ -80,7 +80,7 @@ public class TicketsSession {
         GET_MAX_TICKETS = session.prepare("SELECT maxTickets FROM ticketsInfo WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
         SET_MAX_TICKETS = session.prepare("UPDATE ticketsInfo SET maxTickets=? WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
 
-        GET_OWNER = session.prepare("SELECT owner FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
+        GET_OWNER_CANDIDATES = session.prepare("SELECT owner, candidates FROM tickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         SET_OWNER = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.QUORUM);
         SET_OWNER_TRANSACTION = session.prepare("UPDATE tickets SET owner = ? WHERE concert = ? and type = ? and id = ? IF owner = NULL").setConsistencyLevel(ConsistencyLevel.QUORUM);
 
@@ -168,7 +168,7 @@ public class TicketsSession {
     }
 
     public boolean isFree(String concert, int type, int id) {
-        BoundStatement bs = new BoundStatement(GET_OWNER);
+        BoundStatement bs = new BoundStatement(GET_OWNER_CANDIDATES);
         bs.bind(concert, type, id);
         ResultSet rs = session.execute(bs);
         Row row = rs.one();
