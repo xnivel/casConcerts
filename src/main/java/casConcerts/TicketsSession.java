@@ -85,7 +85,7 @@ public class TicketsSession {
 
         GET_INTERVAL = session.prepare("SELECT id  FROM intervaltickets WHERE concert = ? and type = ?").setConsistencyLevel(ConsistencyLevel.ONE);
         SET_INTERVAL = session.prepare("INSERT INTO intervaltickets (concert , type , id) VALUES (?,?,?)").setConsistencyLevel(ConsistencyLevel.ONE);
-        REMOVE_INTERVAL = session.prepare("DELETE from intervaltickets WHERE id = ?").setConsistencyLevel(ConsistencyLevel.ONE);
+        REMOVE_INTERVAL = session.prepare("DELETE from intervaltickets WHERE concert = ? and type = ? and id = ?").setConsistencyLevel(ConsistencyLevel.ONE);
 
 
         logger.info("Statements prepared");
@@ -96,10 +96,10 @@ public class TicketsSession {
         bs.bind(name,type,id);
         session.execute(bs);
     }
-    public void removeInterval(int id){
+    public void removeInterval(String name,int type,int id){
         BoundStatement bs;
         bs = new BoundStatement(REMOVE_INTERVAL);
-        bs.bind(id);
+        bs.bind(name,type,id);
         session.execute(bs);
     }
     public ArrayList<Integer> getIntervals(String name,int type){

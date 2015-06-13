@@ -7,7 +7,7 @@ import java.util.Set;
 public class BoxOffice {
     private Random random;
     private TicketsSession session;
-    private int limit=200;
+    private int limit=20;
 
     public BoxOffice() {
         session = new TicketsSession("127.0.0.1");
@@ -18,6 +18,9 @@ public class BoxOffice {
         session.insertMaxTickets(concert, type, maxTickets);
         for(int i=0;i<maxTickets;i++){
             session.insertNewTickets(concert, type, i);
+        }
+        for(int i=0;i<maxTickets;i+=limit){
+            session.insertInterval(concert,type,i);
         }
     }
 
@@ -49,29 +52,30 @@ public class BoxOffice {
         boolean foundFree = false;
         int id = -1;
 
-        for (int i = 0; i < 15; i++) {
+        for (int i = 0; i < 3; i++) {
             id = random.nextInt(maxTickets);
             if (session.isFree(concert, type, id)) {
                 foundFree = true;
                 break;
             }
         }
-        int goToEnd=0;
+        ArrayList<Integer> intervalsList = session.getIntervals(concert,type);
         int tmpid;
+        int index = random.nextInt(intervalsList.size());
         while (!foundFree) {
-            tmpid=session.getFreeTicket(concert,type,id,limit);
+            if(intervalsList.size()==0){
+                return -1;
+            }
+            tmpid=session.getFreeTicket(concert,type,intervalsList.get(index),limit);
             if(tmpid==-1){
-                id=id+limit;
-                if(id>maxTickets)
-                {
-                    id=0;
-                    goToEnd++;
+                session.removeInterval(concert,type,intervalsList.get(index));
+                intervalsList.remove(index);
+                if(intervalsList.size()==0){
+                    return -1;
                 }
+                index = random.nextInt(intervalsList.size());
             }else{
                 return tmpid;
-            }
-            if (goToEnd >= 1) {
-                return -1;
             }
         }
 
