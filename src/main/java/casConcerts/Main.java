@@ -49,12 +49,16 @@ public class Main {
                 boxOffice.init("Slayer", 1, 1000);
             }
             if (comand.contains("M")) {
-                String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
-                boxOffice.init("Slayer", 1, 10000);
+                //String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
+                ArrayList<String> names = new ArrayList<>();
+                for (int i = 0; i < 500; i++) {
+                    names.add("u" + i);
+                }
+                boxOffice.init("Slayer", 1, 50000);
                 ArrayList<TestOnlyBuy> tests = new ArrayList<>();
                 for (String name : names) {
                     TestOnlyBuy t = new TestOnlyBuy();
-                    t.setAll(1000, "Slayer", 1, 1000, name, 1,boxOffice);
+                    t.setAll(100, "Slayer", 1, 1000, name, 1,boxOffice);
                     tests.add(t);
                 }
                 long start_time = System.nanoTime();
