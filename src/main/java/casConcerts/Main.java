@@ -18,6 +18,7 @@ package casConcerts;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Main {
     public static void showhelp() {
@@ -65,6 +66,7 @@ public class Main {
                 for (TestOnlyBuy t: tests) {
                     t.join();
                 }
+                System.out.println("ilosc lwt: "+boxOffice.lwtCount.get());
                 long end_time = System.nanoTime();
                 double difference = (end_time - start_time)/1e9;
                 System.out.println("time - "+difference);
