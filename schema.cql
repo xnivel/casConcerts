@@ -10,7 +10,7 @@ CREATE TABLE tickets (
   type int,
   id int,
   owner varchar,
-  candidates set<varchar>,
+  candidates list<varchar>,
   PRIMARY KEY (concert, type, id)
 );
 
