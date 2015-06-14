@@ -46,7 +46,7 @@ public class BoxOffice {
 
         boolean correct=false;
         boolean ok=false;
-        while(!correct) {
+        //while(!correct) {
             try{
                 ok= session.setOwnerTransaction(name, concert, type, id);
                 correct=true;
@@ -54,7 +54,7 @@ public class BoxOffice {
 
             }
 
-        }
+        //}
         if (ok) {
             return id;
         } else {
@@ -80,7 +80,7 @@ public class BoxOffice {
         int index;
         while (!foundFree) {
             if(intervalsList.size()==0){
-                return -1;
+                return -2;
             }
             index = random.nextInt(intervalsList.size());
             tmpid = session.getFreeTicket(concert,type,intervalsList.get(index),limit);
@@ -88,7 +88,7 @@ public class BoxOffice {
                 session.removeInterval(concert,type,intervalsList.get(index));
                 intervalsList.remove(index);
                 if(intervalsList.size()==0){
-                    return -1;
+                    return -2;
                 }
                 index = random.nextInt(intervalsList.size());
             }else{
