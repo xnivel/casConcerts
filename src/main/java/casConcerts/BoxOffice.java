@@ -1,6 +1,7 @@
 package casConcerts;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,26 +37,9 @@ public class BoxOffice {
         }
 
         session.addToCandidates(name, concert, type, id);
-        Set<String> candidates = session.getCandidates(concert, type, id);
-        if (candidates.size() == 1 && candidates.contains(name)) {
+        List<String> candidates = session.getCandidates(concert, type, id);
+        if (candidates.size() > 0 && candidates.get(0).equals(name)) {
             session.setOwner(name, concert, type, id);
-            return id;
-        }
-
-        this.lwtCount.getAndIncrement();
-
-        boolean correct=false;
-        boolean ok=false;
-        //while(!correct) {
-            try{
-                ok= session.setOwnerTransaction(name, concert, type, id);
-                correct=true;
-            }catch (Exception e){
-
-            }
-
-        //}
-        if (ok) {
             return id;
         } else {
             return -1;

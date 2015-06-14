@@ -1,10 +1,7 @@
 package casConcerts;
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 import com.datastax.driver.core.*;
 import org.slf4j.Logger;
@@ -145,18 +142,18 @@ public class TicketsSession {
 
     public void addToCandidates(String name, String concert, int type, int id) {
         BoundStatement bs = new BoundStatement(ADD_TO_CANDIDATES);
-        Set<String> set = new HashSet<>();
-        set.add(name);
-        bs.bind(set, concert, type, id);
+        List<String> list = new ArrayList<>();
+        list.add(name);
+        bs.bind(list, concert, type, id);
         session.execute(bs);
     }
 
-    public Set<String> getCandidates(String concert, int type, int id) {
+    public List<String> getCandidates(String concert, int type, int id) {
         BoundStatement bs = new BoundStatement(GET_CANDIDATES);
         bs.bind(concert, type, id);
         ResultSet rs = session.execute(bs);
         Row row = rs.one();
-        return row.getSet("candidates", String.class);
+        return row.getList("candidates", String.class);
     }
 
     public int getMaxTickets(String concert, int type) {
@@ -173,7 +170,7 @@ public class TicketsSession {
         ResultSet rs = session.execute(bs);
         Row row = rs.one();
         String owner = row.getString("owner");
-        Set<String> can = row.getSet("candidates", String.class);
+        List<String> can = row.getList("candidates", String.class);
         return owner == null && can.size()==0;
     }
     public int getFreeTicket(String concert, int type, int id,int limit) {
