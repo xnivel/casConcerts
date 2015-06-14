@@ -53,14 +53,14 @@ public class Main {
             if (comand.contains("M")) {
                 //String[] names = {"Alice", "Bob", "Clive", "Daria", "Eve"};
                 ArrayList<String> names = new ArrayList<>();
-                for (int i = 0; i < 500; i++) {
+                for (int i = 0; i < 50; i++) {
                     names.add("u" + i);
                 }
-                boxOffice.init("Slayer", 1, 50000);
+                boxOffice.init("Slayer", 1, 5000);
                 ArrayList<TestOnlyBuy> tests = new ArrayList<>();
                 for (String name : names) {
                     TestOnlyBuy t = new TestOnlyBuy();
-                    t.setAll(100, "Slayer", 1, 500, name, 1,boxOffice);
+                    t.setAll(100, "Slayer", 1, 0, name, 1,boxOffice);
                     tests.add(t);
                 }
                 long start_time = System.nanoTime();

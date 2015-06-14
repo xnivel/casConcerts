@@ -52,8 +52,12 @@ public class TestOnlyBuy extends Thread {
             int id = -1;
             while (id < 0) {
                 id = boxOffice.buyTicket(userName, concertName, type);
+                if (id == -2) {
+                    System.out.println("No intervals left :(");
+                    return;
+                }
                 missCount++;
-     //           System.out.print(".");
+                System.out.print(".");
             }
             missCount--;
             Integer tmp=MapOfBoughtTickets.get(id);
@@ -63,8 +67,8 @@ public class TestOnlyBuy extends Thread {
                 MapOfBoughtTickets.put(id,1);
             }
 
-  //          System.out.println();
-//            System.out.println(i + ": Ticket bought successfully, id = " + id);
+            System.out.println();
+            System.out.println(i + ": Ticket bought successfully, id = " + id);
         }
     }
 }
